@@ -1,0 +1,57 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: deepfilternet-backend
+    restart: unless-stopped
+    ports:
+      - "8994:8994"
+    volumes:
+      - model_cache:/app/model_cache
+      - temp_files:/app/temp_files
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - MODEL_CACHE_DIR=/app/model_cache
+      - TEMP_FILES_DIR=/app/temp_files
+      - DEFAULT_MODEL=DeepFilterNet3
+      - LOG_LEVEL=INFO
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8994/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    networks:
+      - deepfilternet-network
+
+  frontend:
+    image: nginx:alpine
+    container_name: deepfilternet-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ../app/frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - deepfilternet-network
+
+volumes:
+  model_cache:
+    driver: local
+  temp_files:
+    driver: local
+
+networks:
+  deepfilternet-network:
+    driver: bridge
