@@ -1,4 +1,4 @@
-const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:8994' : '/api';
+const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:8994/api' : '/api';
 
 let currentJobId = null;
 let pollInterval = null;
