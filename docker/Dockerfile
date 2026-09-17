@@ -1,7 +1,7 @@
 FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV RUST_VERSION=1.75.0
+ENV RUST_VERSION=1.98.1
 ENV PYTHON_VERSION=3.11
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -31,7 +31,7 @@ RUN pip3 install maturin poetry
 
 WORKDIR /build
 
-COPY Cargo.toml Cargo.lock ./
+COPY Cargo.toml ./
 COPY libDF ./libDF
 COPY pyDF ./pyDF
 COPY pyDF-data ./pyDF-data
