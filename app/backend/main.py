@@ -44,6 +44,7 @@ app.add_middleware(
 MODEL_CACHE_DIR = Path(os.getenv("MODEL_CACHE_DIR", "/app/model_cache"))
 TEMP_FILES_DIR = Path(os.getenv("TEMP_FILES_DIR", "/app/temp_files"))
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "DeepFilterNet3")
+ATTEN_LIM_DB = float(os.getenv("ATTEN_LIM_DB", "6.0"))
 MAX_FILE_SIZE = 100 * 1024 * 1024
 
 model = None
@@ -107,11 +108,22 @@ def process_audio_job(job_id: str, input_path: Path, output_path: Path, original
         jobs[job_id]["progress"] = 40
         jobs[job_id]["message"] = "Processing audio with DeepFilterNet"
         
-        enhanced = enhance(model, df_state, audio, pad=True)
+        enhanced = enhance(
+            model,
+            df_state,
+            audio,
+            pad=True,
+            atten_lim_db=ATTEN_LIM_DB,
+        )
         jobs[job_id]["progress"] = 80
         jobs[job_id]["message"] = "Saving enhanced audio"
         
-        save_audio(str(output_path), enhanced, df_sr)
+        save_audio(
+            str(output_path),
+            enhanced,
+            df_sr,
+            dtype=torch.float32,
+        )
         jobs[job_id]["progress"] = 100
         jobs[job_id]["status"] = "completed"
         jobs[job_id]["message"] = "Processing complete"

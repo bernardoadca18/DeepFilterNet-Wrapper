@@ -16,6 +16,7 @@ services:
       - TEMP_FILES_DIR=/app/temp_files
       - DEFAULT_MODEL=DeepFilterNet3
       - LOG_LEVEL=INFO
+      - ATTEN_LIM_DB=6
     deploy:
       resources:
         reservations:
